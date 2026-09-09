@@ -30,6 +30,16 @@
       "prompt": "Make every App use the same archive schema even though their continuation workflows differ.",
       "should_activate": false,
       "rationale": "Uniformity alone is not evidence for a shared product contract."
+    },
+    {
+      "prompt": "Replace this flawed internal adapter and migrate its two current callers; do not preserve an alias.",
+      "should_activate": true,
+      "rationale": "Consumers may migrate as part of a coherent replacement."
+    },
+    {
+      "prompt": "Audit only the repository Skill descriptions and AGENTS rules.",
+      "should_activate": false,
+      "rationale": "Agent-only governance has its own owner."
     }
   ]
 }

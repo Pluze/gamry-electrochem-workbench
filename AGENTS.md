@@ -6,8 +6,9 @@ code.
 
 ## Read order
 
-For a narrow change read this file, the nearest scoped `AGENTS.md`, and the
-affected source/tests/docs. Read component manuals only for changed contracts:
+Read this file and every applicable ancestor `AGENTS.md` for the affected
+paths, including intermediate scopes. Reuse already-loaded guidance. Start
+with affected source/tests/docs; read component manuals for changed contracts:
 
 - architecture: `docs/develop/app-authoring/architecture.md`
 - framework: `docs/develop/framework/README.md`
@@ -22,59 +23,46 @@ or compatibility retirement is active. Create it with the first owned entry
 and delete it when the last entry closes. Active migration roadmaps live only
 there; current supported behavior belongs under `docs/`.
 
-## Agent skills and automation
+## Agent guidance
 
-- Use `labkit-agent-governance` whenever adding, changing, reviewing, or
-  retiring `AGENTS.md`, repository Skills, their metadata/evals/scripts,
-  or an active `.agents/migration_guide.md`.
-- Use `labkit-checkpoint-guard` before an ordinary requested commit or push;
-  use `labkit-pr-preparer` only for final task-branch integration into `main`.
-- Treat repeated reasoning, command assembly, selector discovery, and
-  trial-and-error as signals to improve the responsible skill or its scripts.
-  Prefer one reusable improvement over carrying the same procedural burden
-  into later tasks.
-- Skill guidance and automation express stable concepts, user intent,
-  ownership boundaries, and semantic operations. Do not encode a transient CI
-  failure, current repository contents, one App's details, a fixed product
-  version, or a one-off filename as general workflow.
-- Add convenience only when it removes recurring inference or retry cost
-  without hiding important choices, weakening validation, or inventing a
-  parallel product interface. Keep scripts platform-independent when the
-  underlying workflow is platform-independent.
-- Do not create a repository-root `scripts/` directory. Put automation beside
-  its single consumer: GitHub workflow helpers under `.github/scripts/`, test
-  catalog support under `tests/+labkittest/`, and agent-only wrappers under the
-  owning skill. Promote a script only when it has multiple stable consumers.
-- Validate an edited skill and exercise the changed script path. Record
-  durable policy here or in the nearest scoped `AGENTS.md`; keep step-by-step
-  agent procedure in skills rather than duplicating it in human manuals.
-- Promote a correction into durable agent guidance only when repeated current
-  evidence establishes a repository-wide or scoped decision rule. Put it
-  directly in the smallest authoritative owner; keep one-off attempts and
-  conversation-specific corrections out of the repository.
+Use `labkit-agent-governance` for agent instructions, metadata, evaluations,
+scripts, or an active migration ledger. Durable rules have one authoritative
+owner: global invariants here, local invariants in scoped AGENTS, procedures
+in Skills, and fragile repeatable mechanics in their owning scripts. Read
+conditional references only for the current operation. A supporting Skill
+inherits the caller's scope and delivery mode; review stays read-only and
+invocation does not authorize unrelated changes or external actions.
 
-## Final artifact hygiene
+User instructions and existing authorization determine the task. Continue
+routine authorized work; ask only for consequential unresolved choices or
+permission boundaries, identifying the exact instruction when it blocks work.
+Honor explicit durable policy requests. Promote one-off corrections only when
+repeated current evidence establishes a stable rule. Avoid turning transient
+failures, example filenames, or a single App's details into general procedure.
 
-- Derive titles, comments, identifiers, tests, documentation, commit and PR
-  text, release notes, and handoffs from the authoritative starting baseline,
-  the accepted final result, and verified evidence.
-- Treat unaccepted drafts, reverted local edits, discarded proposals, and
-  conversation corrections as control data rather than project history.
-- Mention an exclusion or earlier behavior only when a reader without the
-  working session needs it and it records a real baseline change or protects
-  safety, accuracy, compatibility, migration, compliance, or an explicitly
-  requested comparison or audit.
-- Place each retained fact at its owning surface: current invariants in source
-  or tests, user behavior in help or manuals, durable change rationale in
-  structured Change records, and delivery evidence in the PR record. Regenerate high-salience
-  wrappers from the accepted result, then inspect the complete final surfaces.
+Keep automation beside its consumer: `.github/scripts/` for CI,
+`tests/+labkittest/` for catalog support, and the owning Skill for agent-only
+helpers. Never create a root `scripts/` directory. Improve repeated mechanics
+when that removes recurring cost within the task; otherwise report the follow-up.
+Validate changed guidance and scripts through the governance Skill.
+
+Derive final artifacts from the accepted baseline, final result, and evidence.
+Discarded drafts and session corrections are control data, not project history.
+Keep current facts in source/tests/manuals, rationale in structured Changes,
+and delivery evidence in the PR. Retain historical comparisons only when a
+reader needs them for the requested audit, science, safety, or compatibility.
 
 ## Architecture and implementation
 
-- Preserve behavior unless the user asks to change it.
-- Moving behavior to a new owner does not retire its observable contract.
-  Preserve appearance, interaction paths, status, results, and failure
-  semantics at the new boundary before deleting the old owner.
+- Preserve required scientific meaning and supported user outcomes unless the
+  task changes them. Existing implementation shape, internal interfaces, and
+  accidental behavior are not compatibility obligations.
+- For refactoring, prefer a coherent replacement of a flawed design over a
+  smaller diff that adds wrappers, aliases, or parallel state. Trace supported
+  consumers and migrate them with the owner; remove superseded code and tests.
+  Preserve a compatibility path only for an identified external consumer or
+  saved-data promise, with an explicit owner and retirement condition. Resolve
+  uncertain scientific or external compatibility changes before removing them.
 - Apps own formulas, thresholds, units, workflow decisions, plots, results,
   exports, failures, and wording. Promote code into `+labkit` only when it is a
   stable domain-neutral contract useful beyond one app.
@@ -83,14 +71,12 @@ there; current supported behavior belongs under `docs/`.
   or a private framework capability. Add a public API only when multiple Apps
   need the stable contract or extending an existing API would turn it into an
   ambiguous bucket.
-- App-facing packages are `labkit.app`, `image`, `thermal`, `dta`, `rhs`,
-  `biosignal`, and `mark10`. Do not create public `analysis`, `data`, `io`, `util`, or
-  app-specific helper surfaces.
-- App shape, capability naming, callbacks, persistence, and Debug behavior are
-  governed by `apps/AGENTS.md`; App SDK internals and facade contracts are
-  governed by `+labkit/AGENTS.md`.
-- Do not convert struct state into classes, merge all apps into one entrypoint,
-  or change implementation language without explicit approval.
+- `apps/AGENTS.md` owns App shape, callbacks, persistence, and diagnostics;
+  `+labkit/AGENTS.md` owns library and SDK contracts. Keep app-facing packages
+  to `app`, `image`, `thermal`, `dta`, `rhs`, `biosignal`, and `mark10`.
+  Do not create public `analysis`, `data`, `io`, `util`, or App-specific helpers.
+- Converting App struct state to classes, merging all Apps into one entrypoint,
+  or changing implementation language requires an explicit user decision.
 - Call fixed production symbols directly so static analysis, dependency
   discovery, and refactoring can see them. Use `eval`, string-based `feval`,
   or `str2func` only at a genuinely dynamic extension or compatibility
@@ -149,33 +135,12 @@ there; current supported behavior belongs under `docs/`.
 
 ## Documentation
 
-- Human sources are path-organized Markdown under `docs/` and public MATLAB
-  help. Follow `docs/AGENTS.md` for authored page ownership and
-  `labkit-documentation-maintainer` for content, renderer, change, release,
-  link, or deployment workflows. `site/` is ignored generated output; never
-  track or edit it.
-- Update human docs for user behavior or public contracts, scoped AGENTS for
-  execution/ownership rules, and both only when both changed. Do not duplicate
-  agent workflow in human manuals.
-- Before final integration, classify every changed user workflow, public API,
-  App, schema, error, default, output, and compatibility contract as requiring
-  documentation creation, update, retirement, or no current-documentation
-  change. A no-documentation result is valid only when verified behavior and
-  reader entry points are unchanged; record that conclusion in the PR rather
-  than silently omitting the review.
-- Keep current behavior, accepted logical changes with their rationale,
-  published release summaries, and delivery evidence in separate owners
-  defined by `docs/AGENTS.md`. Move or delete documentation as a hard change:
-  update live internal links, but do not preserve old URLs, redirects, aliases,
-  or archived site pages.
-- Every public library function documents syntax, inputs, outputs, options,
-  defaults, legal values, errors, and related APIs immediately after its
-  declaration. Cataloged scientific app APIs also document units, assumptions,
-  and standalone GUI-free use. Private helpers document caller, shapes, side
-  effects, and assumptions.
-- `Example:` help is executable in a clean MATLAB session and covered by the
-  docs runner. Use `Typical Call:` for interactive or user-file-dependent
-  sketches.
+Human sources are Markdown under `docs/` and public MATLAB help. Read
+`docs/AGENTS.md` when changing those contracts and use
+`labkit-documentation-maintainer` for the affected procedure. Generated `site/`
+is ignored output; never track or hand-edit it. Agent instructions are not
+reader pages. Classify documentation impact before final integration, including
+an evidence-backed no-current-doc-change result in the PR when appropriate.
 
 ## Sensitive data
 
@@ -190,205 +155,81 @@ tests, history, and details out of the public repository.
 
 ## Validation
 
-- Run the smallest source-aligned test during iteration. Use
-  `labkit-test-planner` for selectors, failure repair, CI scope, GUI checks,
-  fixtures, and the one final pre-PR `changedFast` run. Required PR CI owns the
-  complete platform claim; the protected main push records policy for the
-  already-validated squash tree.
-- After a local or hosted-CI failure, inspect only the failing identity and its
-  log, fix the smallest responsible source boundary, and rerun the narrowest
-  failed method, specification file, or owner/contract. Push the focused repair
-  and let required CI re-establish the complete claim; do not rerun
-  `changedFast` or a local full profile after every CI repair. Re-plan only when
-  the repair intentionally widens the changed behavior or ownership boundary.
-  Exact commands and scope live in
-  `docs/develop/testing.md`.
-- MATLAB and GitHub inspection require host runtime/network permissions. Run
-  every `gh` command with host permissions on its first attempt, including
-  `gh auth status`; sandboxed `gh` cannot access the macOS Keychain and can
-  falsely report a valid token as invalid. Never ask the user to reauthenticate
-  based only on sandboxed output. If MATLAB exits before a build/test banner,
-  diagnose launcher access rather than source failure.
-- Never launch or open the MATLAB IDE or MATLAB Desktop for any task. Use a
-  bounded noninteractive MATLAB process for tests, analysis, and MATLAB API
-  screenshot capture. If a required check cannot run without the IDE, report
-  that boundary instead of opening it.
-- Do not add Code Analyzer suppression pragmas.
-- `artifacts/` is ignored scratch output, never tracked design state.
-- Automated hidden GUI tests do not prove native dialogs, visual quality,
-  pointer feel, scientific validity, or full manual workflows. Do not run
-  interactive workflows in MATLAB `-batch` mode.
-- Before editing an App when the change risks unintended visual differences,
-  save a before-change interface baseline unless the requested outcome
-  deliberately adds or removes UI elements or changes the design. Capture
-  every LabKit App screenshot through MATLAB's own APIs: locate the target
-  figure by its stable handle or tag and export the App window with
-  `exportapp` from a bounded noninteractive MATLAB process; do not use desktop
-  screenshot automation.
-- A validation entry point expected to run longer than 30 seconds reports its
-  current stage and completed/total work, and emits a heartbeat at least every
-  30 seconds while one unit remains active. Reuse the owning progress plugin
-  or callback instead of making callers infer progress from process liveness.
-- Treat development feedback as non-gating author feedback, never merge
-  evidence. Inspect it only when requested, needed by a checkpoint, or blocking
-  current work; do not poll it during ordinary iteration.
+Use `labkit-test-planner` for selectors, test design/execution, fixtures, GUI
+checks, or CI repair. Reuse source-aligned evidence and add tests only for real
+contract gaps. The final pre-PR `changedFast` gate includes `codecheck` and
+`docsCheck`; required PR CI owns the full platform claim. After CI failures,
+repair and rerun the failed owner rather than repeating broad local gates,
+unless the repair intentionally widens scope.
 
-## Git workflow
+Run MATLAB and every `gh` command with host runtime/network permissions from
+the first attempt. Sandboxed `gh` cannot access the macOS Keychain; do not
+request reauthentication from that output. Diagnose launcher access when MATLAB
+exits before its build banner. Never open MATLAB IDE/Desktop; use bounded
+noninteractive processes. Do not run interactive workflows in `-batch`.
 
-1. Keep the repository's primary checkout on a clean, complete `main` aligned
-   with `origin/main`; it is an integration reference, not a task workspace.
-   Every active delivery branch uses its own linked worktree beneath
-   `artifacts/worktrees/<task-name>/`, even when no other task is active. This
-   ignored common parent keeps active task trees
-   visible and makes their later cleanup explicit. Inspect status and alignment
-   before editing, preserve unrelated user work, fetch `origin/main`, and create
-   the worktree branch from that exact commit. Use a concise descriptive branch
-   name without an agent, tool, user, or fixed category prefix. Never
-   edit or commit directly on `main`, including for documentation, CI, release
-   preparation, emergency repairs, and bug fixes. Never switch, clean, or reuse
-   another task's worktree to start new work.
-2. When a multi-commit migration is active, keep its roadmap only in
-   `.agents/migration_guide.md`; remove completed entries and delete the empty
-   ledger before final PR preparation.
-3. A short-lived task branch may own one focused feature or an intentional,
-   reviewable bundle of improvements across multiple features. Use separate
-   branches when isolation is needed for risk, ownership, dependency, review,
-   or delivery timing; branch separation is a judgment, not a one-feature
-   invariant. State the complete bundled scope in its PR. Commit and push
-   logical checkpoints when the work benefits from them; do not delay a
-   coherent checkpoint merely to accumulate a larger batch. Once its PR to
-   `main` opens, freeze its scope until the PR is merged or closed. Baseline
-   updates, reviewed conflict resolution, validation repairs, and explicit
-   user scope changes remain part of integration; unrelated later work uses
-   another task branch.
-4. Use `labkit-checkpoint-guard` for ordinary branch commits and pushes and
-   `labkit-pr-preparer` for final integration updates. Both require scope and
-   evidence review before publishing. A clean `codecheck` is mandatory after
-   the final MATLAB edit; stage only the owned outcome and proportionate
-   evidence.
-5. Use `labkit-pr-preparer` for the complete `origin/main..HEAD` squash
-   boundary, versions, reader documentation, final local gate, PR record, CI,
-   review, merge, and post-merge task cleanup. Main accepts PRs only
-   from same-repository short-lived task branches. Never merge `main` back into
-   a task branch merely for branch bookkeeping and never create a sync commit.
-   After the merge and exact main-push policy run succeed, remove every linked
-   worktree owned only by the accepted task, delete its local branch, verify
-   GitHub's automatic head-branch deletion, and delete that verified accepted
-   remote head explicitly only if automation did not complete. Fast-forward
-   the clean primary checkout to the accepted `origin/main` commit and verify
-   it is clean and aligned. Resolve every cleanup target from verified Git
-   state, preserve unrelated worktrees and branches, and stop rather than
-   discard dirty or unaccepted work.
-6. After merge, release only the exact accepted main commit after its policy
-   gate succeeds. Do not repeat the complete PR MATLAB matrix.
-7. Respect the requested delivery state: preparing or opening a PR alone does
-   not authorize merging it. A request to integrate or merge PRs authorizes
-   the necessary task-branch
-   rebase or replay, conflict repairs, and exact-lease updates within those
-   PRs' understood scope. The agent owns dependency order and reconciles the
-   intended behavior of parallel changes; routine Git mechanics do not
-   require another user decision. Inspect all requested PRs, their evidence,
-   relevant worktrees, and overlapping contracts before choosing the order.
-   Preserve accepted behavior and recoverable old tips, review rewritten
-   files, and revalidate the resulting diff. For a non-fast-forward update,
-   use only `--force-with-lease=refs/heads/<task>:<verified-old-sha>` against
-   the authorized task branch. If the remote head changes, inspect the new
-   work before preparing another candidate; never just refresh the lease.
-   Other history rewrites require explicit authorization. Never force-push
-   `main`, use an unguarded force push, or weaken repository protection.
-   Ask only when an unresolved product/scientific decision, uncertain work
-   ownership, or an external permission/protection requirement prevents a
-   justified result. Stop and report real review, CI, or cleanup blockers
-   rather than bypassing them.
-   Branch protection must require `CI Gate`, PR review flow, linear main
-   history, and conversation resolution for administrators as well as ordinary
-   contributors; it must reject direct pushes, force pushes, and deletion.
+Before an App edit that risks unintended visual differences, capture the
+baseline unless the task deliberately changes the design. All App screenshots
+use MATLAB `exportapp` and a stable target figure from a bounded noninteractive
+process, never desktop screenshot automation. Hidden GUI does not establish
+native dialogs, pointer feel, visual quality, scientific validity, or real-data
+suitability; preserve these distinctions in the evidence report.
 
-When creating a public GitHub Issue or pull request, use the matching template
-under `.github/` as the required structure. A bug report names its target,
-reproduction, expected/actual behavior, impact, and redacted evidence; a
-workflow request names its target App, user goal, inputs, outputs, acceptance
-criteria, and out-of-scope behavior. A pull request records goal/scope,
-user-visible behavior, exact validation evidence, remaining manual checks,
-documentation/boundary decisions, delivery state, and data hygiene. Do not
-invent a parallel issue or PR format, and do not include sensitive lab data or
-local paths. Treat the PR body as a review record. A checkbox is reserved for a
-universal, author-controlled, binary pre-merge obligation; never use one for
-branch, commit, hosted-CI, review, or merge state that GitHub owns, or for
-conditional alternatives and `N/A` choices. Record why the change exists, its
-net behavior and ownership decisions, exact local/manual evidence, and risks
-or follow-up, including compatibility, versions, documentation, boundaries,
-and data handling when relevant.
+Do not add Code Analyzer suppression pragmas. Keep scratch artifacts under
+ignored `artifacts/`. Validation lasting over 30 seconds exposes named stages,
+completed/total work, and a heartbeat at least every 30 seconds, through the
+owning progress facility. Development Feedback is non-gating; inspect it only
+when requested, needed for checkpoint evidence, or blocking current work.
 
-Write GitHub Issue, pull-request, review, and Release Markdown as one physical
-line per prose paragraph and one physical line per list item. Do not insert
-column-width wrapping; GitHub owns visual wrapping. Preserve newlines only for
-Markdown structure, fenced or indented code, tables, separate standalone links,
-or an intentional hard break. Before a `gh` body or notes write, pass drafted
-Markdown through `.github/scripts/normalize_github_markdown.py`; use `--check`
-for repository-owned GitHub templates.
+## Delivery and authorization
 
-Commit and squash subjects use exactly one lowercase Conventional Commit type:
-`feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `ci`, or `chore`. Pass an
-explicit compliant squash subject; do not rely on GitHub defaults.
+- Use a new linked worktree under `artifacts/worktrees/<task-name>/` for every
+  delivery branch. Before editing, inspect local work, fetch `origin/main`,
+  and branch from that exact commit. Keep the primary checkout clean on main;
+  preserve unrelated worktrees and never reuse a merged branch.
+- Use `labkit-checkpoint-guard` for ordinary commits and authorized pushes;
+  use `labkit-pr-integrator` for preparing, opening, updating, or merging a PR.
+  A merge request includes necessary replay, conflict repair, and exact-lease
+  task updates. A request only to prepare or open a PR stops at that state.
+- Main accepts same-repository PRs only. Preserve required `CI Gate`, review
+  flow, conversation resolution, linear history, and administrator enforcement.
+  Never bypass protection, push directly to main, force-push main, or delete it.
+- Never merge main into a task branch for bookkeeping. A non-fast-forward task
+  update requires integration authorization and
+  `--force-with-lease=refs/heads/<task>:<verified-old-sha>`. If the remote head
+  changes, inspect the new work before preparing another candidate. Other
+  history rewrites require explicit authorization.
+- Keep a PR's scope fixed after opening, except accepted scope changes,
+  baseline reconciliation, and validation repairs. Bundle related improvements
+  when their combined ownership, evidence, and delivery boundary are clear.
+- After an authorized merge, verify its exact main-push policy run and complete
+  accepted-task cleanup through the integration reference. Preserve dirty or
+  unaccepted work; fast-forward the clean primary checkout to accepted main.
+- Use the matching `.github/` template for Issues, PRs, and Release notes.
+  Before writing GitHub Markdown, run
+  `.github/scripts/normalize_github_markdown.py`; use `--check` for templates.
+  Keep one physical line per prose paragraph and list item. GitHub owns hosted
+  status; PR bodies own scope, rationale, local/manual evidence, and risks.
+- Commit and explicit squash subjects use one lowercase Conventional Commit
+  type: `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `ci`, or `chore`.
 
-## Versions, changes, and releases
+## Versions and releases
 
-- Version semantics belong only in dedicated facade/App version metadata,
-  dependency requirements, saved-data migration branches, current
-  compatibility documentation, and release records. Do not encode versions in
-  package, folder, file,
-  function, class, type, protocol, test, or current-architecture names; use one
-  stable semantic name and let the version contract express compatibility.
-- Before a task-branch PR is merge-ready, source changes to a
-  versioned app/facade or launcher update its source version and current owning
-  manual. Compare the PR base and head: each existing component advances by
-  exactly one direct patch, minor, or major step. Record the direct transition
-  in one structured change record for the accepted logical change; a
-  cross-component change uses one record and lists every affected component.
-- Change records preserve the human explanation of why a change happened, its
-  accepted choice, relevant rejected alternatives, net behavior, user and
-  developer impact, compatibility, and remaining limits. When a later change
-  replaces an earlier choice, link it with `supersedes`; do not create a
-  separate decision record. Change records do not preserve commit order, raw
-  test inventories, hashes, or CI mechanics.
-- Each published LabKit version owns one GitHub Release matching its `vX.Y.Z`
-  tag. GitHub is the single source for that published version summary; do not
-  create a parallel page under `docs/`, maintain an unreleased changelog, or
-  duplicate Change narratives.
-- Before drafting or publishing release notes, identify the immediately
-  preceding published release tag and audit the complete
-  `<previous-published-tag>..<release-tag>` boundary. Reconcile its commits,
-  changed paths, structured Change records, and component version transitions
-  so every added, changed, or retired user-visible App, workflow, public
-  contract, compatibility condition, and required user action is represented
-  in Highlights, Fixes, or Upgrade Note. Explicitly classify remaining changes
-  as non-user-visible in the release work record. Never infer release scope
-  from only the latest PR, merge commit, branch, or remembered delivery.
-- After writing or editing a GitHub Release, read back the published title,
-  tag, body, and assets and compare the body once more with that complete tag
-  boundary before considering the release complete.
-- New release tags are `vX.Y.Z`; do not rename published legacy tags. Release
-  titles contain only `VX.Y.Z` with an uppercase `V` and relevant `Highlights`,
-  `Fixes`, `Upgrade Note`, and `Validation` sections.
-- Treat release notes as a user-facing product summary, not a release audit.
-  Describe observable behavior, affected workflows, compatibility, and actions
-  a user may need to take. Do not publish commit or run identifiers, commands,
-  test inventories, CI architecture, internal package movement, hashes, byte
-  counts, or maintainer-only evidence; keep those in the PR, workflow record,
-  or release asset verification.
-- Start the manual `Release` workflow only after developer-led interactive App
-  validation, successful required PR validation, and a successful lightweight
-  `Continuous Integration` main-push run for the exact squash commit. It then
-  creates the validated tag and a draft GitHub Release. Review its notes and
-  asset before publishing; ordinary CI never creates tags, and CI runners never
-  install optional Toolboxes.
-- Release assets come from the tag blob, not the worktree. Verify byte count
-  and SHA-256 before and after upload; replace a mismatched asset without moving
-  a published tag.
+Version semantics belong in component metadata, requirements, saved-data
+migration branches, compatibility documentation, and release records, not in
+implementation names. Before a source-changing PR is merge-ready, each affected
+versioned App, facade, or launcher advances exactly one direct semantic version
+step from the base, updates its current manual, and records the accepted
+logical change and transitions once. One cross-component decision has one
+Change record. `labkit-pr-integrator` owns consolidation.
+
+Release publication is a separate requested operation owned by
+`labkit-documentation-maintainer` and its release reference. Only the exact
+accepted main commit with successful policy and developer-led interactive
+validation may be released. Ordinary CI does not tag or publish releases.
 
 ## Handoff
 
-Report changed files, branch, commit/push state, tests, CI/PR/merge state when
-applicable, intentional non-changes, blockers, unverified manual behavior, and
-the next recommended step.
+Report the requested outcome, changed files, exact validation and remaining
+limits. Include branch, commit/push, PR/CI/merge, and cleanup state only when
+those delivery operations apply.

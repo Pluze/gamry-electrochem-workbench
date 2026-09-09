@@ -1,6 +1,6 @@
 ---
 name: labkit-simplification-auditor
-description: "Use to find, review, or implement evidence-backed LabKit simplifications involving dead, duplicated, speculative, over-built, compatibility-only, or unnecessarily hand-rolled code, tests, APIs, state, or documentation. Candidates require current contract and consumer evidence."
+description: "Use to find, review, or implement evidence-backed LabKit simplifications involving dead, duplicated, speculative, over-built, compatibility-only, or unnecessarily hand-rolled code, tests, APIs, state, or documentation. Candidates require current contract and consumer evidence. Agent-instruction audits use labkit-agent-governance."
 ---
 
 # LabKit Simplification Auditor
@@ -39,11 +39,16 @@ and proof for the smaller result.
 
 Use `labkit-boundary-guard` for ownership or public surfaces,
 `labkit-scientific-change-guard` for scientific meaning, and
-`labkit-test-planner` for removal evidence. Reject a candidate when a current
-consumer exists, compatibility remains supported, complexity only moves, or a
-new abstraction exceeds the removed design.
+`labkit-test-planner` for removal evidence. Reject removal when it would lose a required outcome for a supported consumer.
+Migrate current consumers with a coherent replacement and remove the old owner.
+Do not preserve internal interfaces or add compatibility wrappers merely to
+minimize the diff. Retain compatibility only for a named external consumer or
+saved-data promise; explain its owner and retirement condition. Reject changes
+that only relocate complexity without improving the supported design.
 
 For an audit, report ranked evidence without editing. For implementation,
-remove one coherent owner at a time and preserve behavior, rollback, tests, and
-documentation before deleting the old path. Retire obsolete agent guidance
+replace the flawed ownership boundary coherently, migrating consumers and
+updating tests/docs for the accepted outcome before deleting the old path.
+Preserve required scientific results, failure recovery, and supported user
+outcomes; do not treat every incidental baseline behavior as a requirement. Retire obsolete agent guidance
 with the product workflow it described.

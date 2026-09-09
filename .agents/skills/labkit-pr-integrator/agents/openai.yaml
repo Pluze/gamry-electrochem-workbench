@@ -1,0 +1,4 @@
+interface:
+  display_name: "LabKit PR and Merge"
+  short_description: "Prepare, validate, and merge LabKit PRs"
+  default_prompt: "Use $labkit-pr-integrator to prepare the PR, validate and merge it into main, and clean up the accepted task."

@@ -18,8 +18,13 @@
     },
     {
       "prompt": "Remove a loop because it looks slow from inspection alone.",
-      "should_activate": false,
-      "rationale": "The skill must not justify performance changes without measurement."
+      "should_activate": true,
+      "rationale": "A suspected performance problem belongs to measurement; activation does not endorse an unmeasured optimization."
+    },
+    {
+      "prompt": "Read this existing profile report and explain the bottleneck without changing code.",
+      "should_activate": true,
+      "rationale": "A report review does not imply a new profile or implementation."
     }
   ]
 }

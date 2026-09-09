@@ -20,6 +20,11 @@
       "prompt": "Update an App user manual for a new export option.",
       "should_activate": false,
       "rationale": "A product documentation contract is owned by documentation maintenance."
+    },
+    {
+      "prompt": "Make this explicit ownership decision a durable repository policy.",
+      "should_activate": true,
+      "rationale": "An explicit durable user policy does not need repeated incidents."
     }
   ]
 }
