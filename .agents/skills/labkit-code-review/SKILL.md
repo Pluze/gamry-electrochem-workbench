@@ -1,11 +1,13 @@
 ---
 name: labkit-code-review
-description: "Use to review or audit a LabKit change, commit, branch, or pull request for correctness, scientific meaning, ownership, compatibility, tests, documentation, and repository policy. The workflow is read-only; final integration routes to labkit-pr-preparer."
+description: "Use to review or audit a LabKit change, commit, branch, or pull request for correctness, scientific meaning, ownership, compatibility, tests, documentation, and repository policy. The workflow is read-only; final integration routes to labkit-pr-integrator."
 ---
 
 # LabKit Code Review
 
-Review the proposed behavior, not only its diff. Establish the exact base,
+Review the proposed behavior, not only its diff. Evaluate the accepted design
+and required consumer outcomes rather than demanding minimal edits or wrappers
+for superseded internal interfaces. Supporting Skills remain read-only. Establish the exact base,
 head, dirty layers, and applicable `AGENTS.md` files; then read the complete
 diff, affected source, source-owned tests, public help, and owning manuals.
 Re-establish the boundary after a rebase, retarget, or base merge.

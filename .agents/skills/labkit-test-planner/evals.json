@@ -33,13 +33,23 @@
     },
     {
       "prompt": "Run every local test even though no source-owned contract requires that scope.",
-      "should_activate": false,
-      "rationale": "The skill rejects unjustified validation widening."
+      "should_activate": true,
+      "rationale": "An explicit full-suite request is test execution; select the intended profile without inventing tests."
     },
     {
       "prompt": "Build a production sample launcher that users can run from every App.",
       "should_activate": false,
       "rationale": "A product launcher is an App and framework ownership decision, not test planning."
+    },
+    {
+      "prompt": "只运行这个现有失败测试，不新增测试。",
+      "should_activate": true,
+      "rationale": "Existing test execution is in scope without authoring."
+    },
+    {
+      "prompt": "Review the test evidence only; do not edit or run anything.",
+      "should_activate": true,
+      "rationale": "Read-only evidence review uses criteria, not authoring or execution."
     }
   ]
 }

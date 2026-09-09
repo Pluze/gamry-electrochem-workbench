@@ -1,4 +1,4 @@
 interface:
   display_name: "LabKit Performance Profiler"
   short_description: "Measure and improve LabKit performance"
-  default_prompt: "Use $labkit-performance-profiler to measure this LabKit performance problem and verify an improvement."
+  default_prompt: "Use $labkit-performance-profiler to investigate this LabKit performance problem with representative measurements."

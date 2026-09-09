@@ -20,6 +20,16 @@
       "prompt": "Adjust spacing between two controls in an existing App layout.",
       "should_activate": false,
       "rationale": "Presentation-only App-local work has no package ownership decision."
+    },
+    {
+      "prompt": "Rename a private local variable in an SDK method; its owner, API, and dependencies stay unchanged.",
+      "should_activate": false,
+      "rationale": "Private implementation maintenance does not require an ownership decision."
+    },
+    {
+      "prompt": "The App needs a background device service with cancel and close behavior.",
+      "should_activate": true,
+      "rationale": "Background lifecycle is a boundary decision."
     }
   ]
 }

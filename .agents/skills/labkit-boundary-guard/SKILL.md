@@ -1,12 +1,12 @@
 ---
 name: labkit-boundary-guard
-description: "Use for changes to +labkit, public APIs, package ownership, helper promotion, App-versus-library boundaries, or production runtime dependencies. App-local implementation remains with the owning App when no shared boundary can change."
+description: "Decide LabKit public API, package ownership, helper promotion, runtime dependency, and background-execution boundaries. Ordinary implementation within an unchanged private or App-local boundary does not require this workflow."
 ---
 
 # LabKit Boundary Guard
 
-Read the root and nearest scoped rules, affected code/tests, architecture, and
-the single owning manual. Treat `+labkit/AGENTS.md` as the authority for current
+Read applicable ancestor rules and affected code/tests. Read architecture and
+the owning manual when their boundary is being decided. Treat `+labkit/AGENTS.md` as the authority for current
 framework and facade contracts.
 
 ## Decide ownership
@@ -16,17 +16,9 @@ tests, and two real consumers or a clear fit in an existing facade. Reject App
 units, thresholds, wording, plots, results, exports, and workflow policy.
 Duplication, helper length, and callback size are not sufficient evidence.
 
-Use this order:
-
-1. keep product meaning in the owning App capability;
-2. extend an existing focused public contract when cohesive;
-3. add private shared mechanics when Apps need no callable API;
-4. add a public name only for stable multi-App need or to avoid an ambiguous
-   existing API.
-
-Do not create a public helper merely because implementation is shared, or add
-unrelated modes to avoid every new name. Keep domain facades GUI-free and
-App-free; keep runtime and concrete UI mechanics private.
+Apply the root ownership decision order. Keep domain facades GUI-free and
+App-free; use `+labkit/AGENTS.md` for public SDK and private runtime boundaries.
+A shared implementation alone does not require a new public callable API.
 
 ## Guard the Base MATLAB boundary
 
@@ -45,36 +37,11 @@ product, and rely on clean no-Toolbox CI for executable closure. When retiring
 a concrete Toolbox gateway, add the smallest source guard that prevents its
 return. Do not create a product-debt registry.
 
-Do not infer product ownership from a `parallel.*` namespace alone. MATLAB
-owns `backgroundPool`, explicit `parfeval(backgroundPool,...)`, and
-`parallel.pool.PollableDataQueue`; their no-Toolbox contract is one background
-worker. Parallel Computing Toolbox owns `parpool`, `parfor`, `spmd`, pool and
-cluster objects, and multi-worker acceleration. Guards should reject those
-specific boundaries while allowing the explicit Base MATLAB background path.
+For Base MATLAB background primitives, apply the root dependency contract.
 
 ## Decide background execution
 
-Use `labkit-performance-profiler` first and reject background execution when
-foreground blocking has not been measured in the affected workflow. Do not
-infer a responsiveness problem from callback length, a progress message, or a
-single unmeasured run.
-
-Accept a background boundary only when the work is one of these shapes:
-
-- a UI-free computation that receives and returns data-shaped values without
-  retaining App state, graphics, Runtime, or `CallbackContext` handles;
-- a long-lived service with natural exclusive ownership of a resource, such
-  as one device connection, whose client communicates through data-shaped
-  commands and events.
-
-Before accepting either shape, require explicit progress, failure,
-cancellation, close cleanup, replacement and stale-result behavior. Preserve
-deterministic outputs with direct parity evidence. Reject the design when the
-new task lifecycle exceeds the measured responsiveness benefit, when an
-existing transactional run-to-completion path already meets that benefit, or
-when it is expected to isolate a hung MATLAB client. Process-isolated GUI or
-diagnostics must be started by the user or environment, never by repository
-production shell code.
+For proposed background work, read [background execution](references/background.md).
 
 When an App calls `labkit.<facade>`, require the matching facade range in its
 definition and conformance coverage for declaration completeness. Runtime

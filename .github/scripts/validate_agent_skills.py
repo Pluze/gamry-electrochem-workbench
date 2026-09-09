@@ -1,25 +1,50 @@
 #!/usr/bin/env python3
-"""Validate repository-owned LabKit Skill contracts without dependencies."""
+"""Validate repository-owned LabKit Skill contracts and instruction discovery budgets."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import re
+import os
+
+import yaml
 from pathlib import Path
 
 
-FRONTMATTER = re.compile(
-    r"\A---\s*\nname:\s*([^\n]+)\n"
-    r"description:\s*(?:\"([^\"]+)\"|([^\n]+))\n---\s*\n",
-)
+FRONTMATTER = re.compile(r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|$)", re.DOTALL)
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-OPENAI = re.compile(
-    r'\Ainterface:\n'
-    r'  display_name: "([^"\n]+)"\n'
-    r'  short_description: "([^"\n]+)"\n'
-    r'  default_prompt: "([^"\n]+)"\s*\Z',
-)
+PROJECT_DOC_MAX_BYTES = 32768  # Codex default; includes separators between files.
+
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    """Reject ambiguous duplicate mapping keys instead of silently choosing one."""
+
+
+def unique_mapping(loader, node, deep=False):
+    pairs = loader.construct_pairs(node, deep=deep)
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise SkillContractError(f"duplicate YAML key: {key}")
+        result[key] = value
+    return result
+
+
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+
+
+def yaml_mapping(text: str, path: Path) -> dict:
+    try:
+        data = yaml.load(text, Loader=UniqueKeyLoader)
+    except (yaml.YAMLError, TypeError, SkillContractError) as cause:
+        raise SkillContractError(f"{path}: invalid YAML: {cause}") from cause
+    if not isinstance(data, dict):
+        raise SkillContractError(f"{path}: expected a YAML mapping")
+    return data
+
+
 ACTIVATION_KEYS = {
     "prompt", "activate", "do_not_activate", "rationale",
 }
@@ -55,19 +80,29 @@ def validate(root: Path) -> int:
         match = FRONTMATTER.match(text)
         if not match:
             raise SkillContractError(f"{skill_path}: invalid frontmatter")
-        name = match.group(1).strip().strip("\"'")
-        description = (match.group(2) or match.group(3)).strip()
+        metadata = yaml_mapping(match.group(1), skill_path)
+        name = metadata.get("name")
+        description = metadata.get("description")
+        if not isinstance(name, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or len(name) > 64:
+            raise SkillContractError(f"{skill_path}: invalid Skill name")
         if name != folder.name:
             raise SkillContractError(f"{folder}: folder and Skill name differ")
-        if not description:
+        if not isinstance(description, str) or not description.strip():
             raise SkillContractError(f"{folder}: description is required")
-        validate_skill_routes(skill_path, text, skills)
-        validate_documentation_routes(root, skill_path, text)
-        validate_links(folder, text)
+        for resource in [skill_path, *sorted((folder / "references").rglob("*.md"))]:
+            resource_text = resource.read_text(encoding="utf-8")
+            validate_skill_routes(resource, resource_text, skills)
+            validate_documentation_routes(root, resource, resource_text)
+            validate_links(resource.parent, resource_text)
+        validate_reference_reachability(folder)
         validate_portability(folder)
         validate_openai_metadata(folder, name)
         validate_evals(folder / "evals.json")
     validate_activation_evals(skills_root / "activation-evals.json", skills)
+    behavior_path = skills_root / "behavior-evals.json"
+    if behavior_path.exists():
+        validate_behavior_evals(behavior_path, skills)
+    validate_instruction_chains(root)
     return len(skill_dirs)
 
 
@@ -145,18 +180,96 @@ def validate_openai_metadata(folder: Path, name: str) -> None:
         text = path.read_text(encoding="utf-8")
     except OSError as cause:
         raise SkillContractError(f"{path}: missing UI metadata") from cause
-    match = OPENAI.match(text)
-    if not match:
-        raise SkillContractError(f"{path}: invalid UI metadata")
-    display_name, short_description, default_prompt = match.groups()
-    if not display_name.strip():
+    data = yaml_mapping(text, path)
+    interface = data.get("interface", {})
+    if not isinstance(interface, dict):
+        raise SkillContractError(f"{path}: interface must be a mapping")
+    display_name = interface.get("display_name")
+    short_description = interface.get("short_description")
+    default_prompt = interface.get("default_prompt")
+    if not isinstance(display_name, str) or not display_name.strip():
         raise SkillContractError(f"{path}: display name is required")
-    if not 25 <= len(short_description) <= 64:
-        raise SkillContractError(
-            f"{path}: short description must be 25-64 characters")
-    if f"${name}" not in default_prompt:
-        raise SkillContractError(
-            f"{path}: default prompt must mention ${name}")
+    if not isinstance(short_description, str) or not 25 <= len(short_description) <= 64:
+        raise SkillContractError(f"{path}: short description must be 25-64 characters")
+    if not isinstance(default_prompt, str) or f"${name}" not in default_prompt:
+        raise SkillContractError(f"{path}: default prompt must mention ${name}")
+    policy = data.get("policy", {})
+    if not isinstance(policy, dict) or ("allow_implicit_invocation" in policy and
+            not isinstance(policy["allow_implicit_invocation"], bool)):
+        raise SkillContractError(f"{path}: invalid invocation policy")
+
+
+def validate_reference_reachability(folder: Path) -> None:
+    references = {path.resolve() for path in (folder / "references").rglob("*.md")}
+    pending = [(folder / "SKILL.md").resolve()]
+    visited = set()
+    while pending:
+        source = pending.pop()
+        if source in visited:
+            continue
+        visited.add(source)
+        for link in LINK.findall(source.read_text(encoding="utf-8")):
+            target = link.split("#", 1)[0]
+            if not target or "://" in target:
+                continue
+            path = (source.parent / target).resolve()
+            if path in references:
+                pending.append(path)
+    missing = references - visited
+    if missing:
+        raise SkillContractError(f"{folder}: unreachable reference {sorted(missing)[0].name}")
+
+
+def instruction_chains(root: Path) -> list[tuple[Path, int]]:
+    """Measure repository defaults; private worktrees and generated trees are separate scopes."""
+    selected = {}
+    for raw, directories, files in os.walk(root):
+        directories[:] = [name for name in directories if name not in
+                          {".git", "artifacts", "site", "private_apps", "__pycache__"}]
+        directory = Path(raw)
+        for name in ("AGENTS.override.md", "AGENTS.md"):
+            if name in files:
+                data = (directory / name).read_bytes()
+                if data.strip():
+                    selected[directory] = data
+                    break
+    result = []
+    for directory in selected:
+        ancestors = [p for p in [directory, *directory.parents] if p == root or root in p.parents]
+        chain = [selected[p] for p in reversed(ancestors) if p in selected]
+        result.append((directory.relative_to(root), len(b"\n\n".join(chain))))
+    return sorted(result)
+
+
+def validate_instruction_chains(root: Path) -> None:
+    for directory, size in instruction_chains(root):
+        if size > PROJECT_DOC_MAX_BYTES:
+            raise SkillContractError(
+                f"{directory}: instruction chain is {size} bytes; default limit is {PROJECT_DOC_MAX_BYTES}")
+
+
+def validate_behavior_evals(path: Path, skills: set[str]) -> None:
+    data = load_json(path)
+    if not isinstance(data, dict) or set(data) != {"schema_version", "cases"} or data["schema_version"] != 1:
+        raise SkillContractError(f"{path}: invalid behavior eval contract")
+    cases = data["cases"]
+    if not isinstance(cases, list) or not cases:
+        raise SkillContractError(f"{path}: behavior cases required")
+    seen = set()
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != {"id", "prompt", "skills", "expected", "forbidden"}:
+            raise SkillContractError(f"{path}: malformed behavior case")
+        for key in ("id", "prompt"):
+            if not isinstance(case[key], str) or not case[key].strip():
+                raise SkillContractError(f"{path}: missing behavior {key}")
+        if case["id"] in seen:
+            raise SkillContractError(f"{path}: duplicate behavior id")
+        seen.add(case["id"])
+        for key in ("skills", "expected", "forbidden"):
+            if not isinstance(case[key], list) or not case[key] or not all(isinstance(x, str) and x.strip() for x in case[key]):
+                raise SkillContractError(f"{path}: invalid behavior {key}")
+        if set(case["skills"]) - skills:
+            raise SkillContractError(f"{path}: unknown behavior Skill")
 
 
 def validate_activation_evals(path: Path, skills: set[str]) -> None:
@@ -208,6 +321,10 @@ def main() -> int:
     except SkillContractError as cause:
         parser.error(str(cause))
     print(f"Validated {count} repository Skill contract(s).")
+    chains = instruction_chains(args.root.resolve())
+    if chains:
+        directory, size = max(chains, key=lambda item: item[1])
+        print(f"Largest instruction chain: {directory} = {size}/{PROJECT_DOC_MAX_BYTES} bytes.")
     return 0
 
 

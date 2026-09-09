@@ -7,7 +7,7 @@ description: "Use for changes to scientific formulas, units, ranges, defaults, s
 
 ## Establish the contract
 
-Read `AGENTS.md`, the nearest scoped rules, the affected calculation and its
+Read `AGENTS.md`, the applicable ancestor rules, the affected calculation and its
 public help, the App or library manual that states the scientific meaning, and
 the complete source-owned tests. Use `labkit-boundary-guard` if ownership or a
 public facade may change, and `labkit-test-planner` before selecting evidence.

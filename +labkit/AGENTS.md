@@ -22,14 +22,8 @@ Use `labkittest.explain` to find the exact owner and contract.
 
 ## Ownership
 
-- Promote an API only when it is domain-neutral, independently testable, and
-  useful beyond one app workflow. Duplication or line-count reduction is not
-  sufficient.
-- New public names are the last resort. First keep product behavior App-local;
-  then prefer a cohesive option, method, or operation on an existing focused
-  contract; then prefer private adapter/runtime support when Apps need not
-  call it. Add a public name only for stable multi-App use or when extending
-  the nearest API would make that API an ambiguous bucket.
+- Apply the root public-boundary decision order; `labkit-boundary-guard` owns
+  promotion and API design procedure.
 - Keep experiment formulas, thresholds, units, result schemas, plot wording,
   exports, file queues, and workflow decisions in apps.
 - Do not add public helper-dump packages such as `analysis`, `data`, `io`, or
@@ -43,8 +37,11 @@ Use `labkittest.explain` to find the exact owner and contract.
   budget is an explicit caller-owned product decision, not a facade default.
 - `labkit.contract` owns MATLAB-native version requirements and range checks,
   not app discovery or package management.
-- Do not introduce MATLAB classes or a third-party runtime dependency without
-  explicit approval.
+- A private class is an ordinary implementation choice when it fits existing
+  SDK ownership and lifecycle contracts. Converting App struct state to classes
+  or introducing a public inheritance/state model requires an explicit design
+  decision from the user; existing task authorization can supply that decision.
+  Runtime dependencies follow the root Base MATLAB contract.
 - The App SDK is a stable composition-only contract: no public inheritance
   hierarchy, mutable handle-state model, version-named namespace, or adapter
   back to retired author-facing transport structs.

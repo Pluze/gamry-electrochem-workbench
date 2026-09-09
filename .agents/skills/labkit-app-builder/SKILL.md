@@ -24,32 +24,17 @@ changed flow, input/commit/refresh classification, logging policy, evidence,
 and manual GUI checks. Apply `apps/AGENTS.md` as the App shape authority. Add
 only capabilities with a named product or lifecycle owner.
 
-For every value-bearing control, state whether it is binding-only, bounded
-preview, result-invalidating, or an explicit-work trigger. Slider drag and
-rapid spinner edits use the SDK's commit boundary; their callback remains
-light and does not own unbounded or potentially long IO/calculation, export,
-waiting, or per-adjustment logs. It may perform one bounded current preview or
-automatic refresh; a navigation control may read one bounded current record or
-window for its core preview. Put work that cannot meet an interactive response
-budget behind a named action. For every log,
-justify the severity and retain only semantic aliases, bounded counts,
-dimensions, units, and reasons; never retain paths, filenames, identities, or
-scientific content.
-
-For every plot, classify viewport invalidation separately from presentation
-refresh. Use a semantic `ViewRevision` that changes for a new source/result,
-plotted coordinate or unit/scale transform, changed image canvas, or explicit
-fit/reset. Keep it stable for style, palette, grid, legend, annotation
-visibility, same-size frame navigation, and overlay editing. Give live streams
-an explicit rolling/out-of-view policy rather than refitting per sample. Use
-App-owned IDs and bounded choices in revisions, never paths or filenames.
+Apply the callback commit, logging, and viewport rules in `apps/AGENTS.md`.
+Record only the decisions the new App needs; do not restate SDK defaults.
 
 Make layout read in workflow order. Keep each capability's layout, direct
 actions, presentation, and renderer together when they change together. Use
 SDK bindings and defaults before callback glue; pass narrow domain values below
 the callback boundary.
 
-Build in this order:
+Build the capabilities needed by the requested workflow, generally in this order.
+Omit readers, calculation, batch/export, and persistence stages for Apps that
+do not need them:
 
 1. identity, requirements, layout, and only the in-memory state the App uses;
 2. GUI-free readers, calculations, results, and synthetic tests;
@@ -60,8 +45,10 @@ Build in this order:
 6. direct calculation, state, renderer, export, then bounded GUI evidence;
 7. version, manual, and component history for the delivered contract.
 
-Validate anonymous synthetic input through the production reader and a bounded
-native-runtime workflow using `labkit-test-planner`. Keep native dialog, pointer,
+For Apps with input readers, validate anonymous synthetic input through the
+production reader. For every App, validate its useful native-runtime outcome
+using `labkit-test-planner`; a static reference App verifies displayed content
+without inventing import or calculation. Keep relevant native dialog, pointer,
 visual, and scientific checks explicit; clean construction is insufficient.
 
 Use `labkit-boundary-guard` before changing a public facade,

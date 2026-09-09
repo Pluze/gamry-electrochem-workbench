@@ -1,24 +1,29 @@
 # Repository Skills
 
-Each directory owns one LabKit-specific agent workflow:
+Each Skill owns one LabKit workflow. `SKILL.md` contains its discriminating
+trigger, core decisions, and completion conditions. Conditional procedures live
+in linked `references/`; repeatable operations live in `scripts/`. UI metadata
+in `agents/openai.yaml` describes the same scope, including default delivery.
+Supporting Skills inherit the requesting task's mode and authorization.
 
-- `SKILL.md` defines activation boundaries and procedure.
-- `agents/openai.yaml` defines the Codex UI name and invocation prompt.
-- `evals.json` records positive and negative activation examples.
-- `activation-evals.json` records only meaningful cross-Skill collisions and
-  exclusions; it is not a catalog of every possible combination.
+Install the governance tooling with `python3 -m pip install -r .github/requirements.txt`
+in a development environment, then run
+`python3 .github/scripts/validate_agent_skills.py` and its unit tests.
+PyYAML is a development/CI dependency only. The parser accepts standard YAML,
+including reordered/multiline fields and supported optional metadata; LabKit
+additionally requires UI name, short description, and invocation prompt.
 
-Run `python .github/scripts/validate_agent_skills.py` after changing a Skill.
-Every immediate non-hidden directory is a Skill owner and must contain its
-`SKILL.md`; generated `__pycache__` directories are excluded. The validator
-checks entry points, metadata, local links, literal current-manual paths,
-backticked `labkit-*` Skill routes,
-and evaluation contracts deterministically. These checks establish structural
-consistency, not whether a model follows the guidance or chooses the correct
-workflow. Review activation examples against the affected procedure as well.
-Model-scored forward evaluation remains a review aid rather than a required
-local or CI dependency.
+The validator checks entrypoints, names, YAML semantics, local links and Skill
+routes in entrypoints/references, reachable references, activation/behavior
+scenario structure, and repository AGENTS chains against Codex's default
+32 KiB budget. It includes intermediate scopes and override precedence, but
+does not measure user-global instructions or custom host fallback settings.
+Generated artifacts and independent private workspaces are outside this catalog.
 
-Write each description from its positive task scope and route adjacent work to
-its actual owner. Balanced activation evals carry the deterministic positive
-and negative boundary; no fixed prohibition phrase is required in prose.
+`evals.json` supplies meaningful positive/negative activation examples;
+`activation-evals.json` covers neighboring-workflow collisions.
+`behavior-evals.json` records expected task outcomes and unwanted actions.
+These are fixtures for review, not evidence that a model passed. Use the
+[governance evaluation procedure](labkit-agent-governance/references/evaluation.md)
+for independent trials. Structural checks cannot establish activation accuracy,
+scientific judgment, correct authorization, or successful completion.

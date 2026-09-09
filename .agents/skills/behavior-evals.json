@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "review-only",
+      "prompt": "Review this changed calculation and its tests. Do not modify files or execute tests.",
+      "skills": [
+        "labkit-code-review",
+        "labkit-test-planner"
+      ],
+      "expected": [
+        "Reports actionable findings or explicitly finds none",
+        "Inspects available evidence without authoring or execution"
+      ],
+      "forbidden": [
+        "File edits",
+        "Test execution"
+      ]
+    },
+    {
+      "id": "existing-test",
+      "prompt": "Run the existing failed specification for this known identity; no new tests.",
+      "skills": [
+        "labkit-test-planner"
+      ],
+      "expected": [
+        "Runs the identified existing evidence",
+        "Reports its result and relevant limits"
+      ],
+      "forbidden": [
+        "Creating specifications",
+        "Running unrelated profiles"
+      ]
+    },
+    {
+      "id": "consumer-replacement",
+      "prompt": "Replace a flawed internal adapter and migrate its two in-repository callers. No external API or saved data depends on its shape.",
+      "skills": [
+        "labkit-simplification-auditor"
+      ],
+      "expected": [
+        "Migrates both callers to a coherent replacement",
+        "Removes superseded adapter and obsolete tests"
+      ],
+      "forbidden": [
+        "Keeping an alias only to minimize the diff",
+        "Rejecting the change solely because current callers exist"
+      ]
+    },
+    {
+      "id": "draft-pr",
+      "prompt": "Prepare and open a draft PR, then leave it for review. Do not merge.",
+      "skills": [
+        "labkit-pr-integrator"
+      ],
+      "expected": [
+        "Completes requested draft and records evidence",
+        "Reports pending CI or review honestly"
+      ],
+      "forbidden": [
+        "Merging",
+        "Publishing a Release"
+      ]
+    },
+    {
+      "id": "merge-pr",
+      "prompt": "Prepare the PR, validate and merge it into main, and clean up the accepted task.",
+      "skills": [
+        "labkit-pr-integrator"
+      ],
+      "expected": [
+        "Verifies required CI and review before expected-head merge",
+        "Verifies exact main policy and safe cleanup"
+      ],
+      "forbidden": [
+        "Stopping at PR creation without a blocker",
+        "Bypassing protection"
+      ]
+    },
+    {
+      "id": "report-only",
+      "prompt": "Explain the bottleneck in this existing profile report without modifying code.",
+      "skills": [
+        "labkit-performance-profiler"
+      ],
+      "expected": [
+        "Uses report evidence and distinguishes uncertainty"
+      ],
+      "forbidden": [
+        "Automatically profiling all App scenarios",
+        "Implementing an optimization"
+      ]
+    },
+    {
+      "id": "static-app",
+      "prompt": "Build a static protocol-reference App with no calculation, import, export, or persistence.",
+      "skills": [
+        "labkit-app-builder"
+      ],
+      "expected": [
+        "Creates only the needed static App shape"
+      ],
+      "forbidden": [
+        "Adding unused readers or state",
+        "Adding export or persistence"
+      ]
+    },
+    {
+      "id": "private-class",
+      "prompt": "Implement this private SDK lifecycle owner using a class within the existing composition model; do not change public APIs or App struct state.",
+      "skills": [
+        "labkit-test-planner"
+      ],
+      "expected": [
+        "Evaluates lifecycle and dependencies within existing authorization"
+      ],
+      "forbidden": [
+        "Requesting approval solely because the implementation is a class"
+      ]
+    },
+    {
+      "id": "governance-audit",
+      "prompt": "Audit Skill descriptions only; do not edit instructions or scripts.",
+      "skills": [
+        "labkit-agent-governance"
+      ],
+      "expected": [
+        "Reads entrypoints and only resources relevant to concrete uncertainty",
+        "Reports evidence and proposals"
+      ],
+      "forbidden": [
+        "Editing guidance",
+        "Launching an unrelated MATLAB suite"
+      ]
+    }
+  ]
+}
